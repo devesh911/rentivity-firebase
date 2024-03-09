@@ -6,11 +6,11 @@
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
-const logger = require("firebase-functions/logger");
+
 const sgMail = require("@sendgrid/mail");
-const admin = require("firebase-admin");
-const {getFirestore} = require("firebase-admin/firestore");
 const functions = require("firebase-functions");
+const {logger, db} = require("./src/config");
+const {ratingOverviewOnNewFeedbackTrigger} = require("./src/ratingOverview");
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
@@ -19,8 +19,6 @@ const functions = require("firebase-functions");
 //   response.send("Hello from Firebase!");
 // });
 
-const app = admin.initializeApp();
-const db = getFirestore(app);
 const sendgridApiKey = functions.config().sendgrid.key;
 const mailFrom = functions.config().sendgrid.from;
 sgMail.setApiKey(sendgridApiKey);
@@ -38,6 +36,8 @@ async function getDocument(docPath) {
   logger.info(`Received doc with id: ${doc.id}`);
   return doc.data();
 }
+
+exports.updateRatingOverviewOnNewFeedback = ratingOverviewOnNewFeedbackTrigger;
 
 exports.sendMailOnNewListing = functions.firestore
     .document("listings/{listingId}")
